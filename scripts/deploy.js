@@ -7,20 +7,29 @@
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const NAME = "Dapp University"
+  const SYMBOL = "DAPPU"
+  const MAX_SUPPLY = "1000000"
+  const PRICE = hre.ethers.utils.parseUnits("0.025", "ether")
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
+  //Migration goes here.
+  const Token = await hre.ethers.getContractFactory("Token")
+  let token = await Token.deploy("Dapp University", "DAPPU", "1000000")
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  await token.deployed()
+  console.log(`Token deployed to: ${token.address}\n`)
+  // deploy crowdsale
+  const Crowdsale = await hre.ethers.getContractFactory("Crowdsale")
+  const crowdsale = await Crowdsale.deploy(token.address, PRICE, hre.ethers.utils.parseUnits(MAX_SUPPLY, "ether"))
+  await crowdsale.deployed();
 
-  await lock.deployed();
+  console.log(`Crowdsale deployed to: ${crowdsale.address}\n`)
 
-  console.log("Lock with 1 ETH deployed to:", lock.address);
+  const transaction = await token.transfer(crowdsale.address, hre.ethers.utils.parseUnits(MAX_SUPPLY, "ether"))
+  await transaction.wait()
+
+  console.log(`Tokens transferred to Crowdsale\n`)
 }
-
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {

@@ -117,7 +117,6 @@ describe("Crowdsale", () => {
     let price = ether(2)
 
     describe("Success", () => {
-
       beforeEach(async () => {
         transaction = await crowdsale.connect(deployer).setPrice(ether(2))
         result = await transaction.wait()
