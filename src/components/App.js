@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { ethers } from 'ethers';
+import Button from 'react-bootstrap/Button';
 
 // Components
 import Info from './Info';
@@ -86,6 +87,9 @@ function App() {
           <p className="text-center">
             <strong>Current Price:</strong> {price} ETH
           </p>
+          <Button variant="success" type="submit">
+            Connect Wallet
+          </Button>
           <Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
           <Progress maxTokens={maxTokens} tokensSold={tokensSold} />
         </>
