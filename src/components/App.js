@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 // Components
 import Info from './Info';
 import Navigation from './Navigation';
+import Buy from './Buy';
 import Loading from './Loading';
 import Progress from './Progress';
 
@@ -40,7 +41,6 @@ function App() {
 
     //fetch ChainID
     const { chainId } = await provider.getNetwork();
-    console.log(chainId);
 
     //Initiate contracts
 
@@ -86,6 +86,7 @@ function App() {
           <p className="text-center">
             <strong>Current Price:</strong> {price} ETH
           </p>
+          <Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
           <Progress maxTokens={maxTokens} tokensSold={tokensSold} />
         </>
       )}
