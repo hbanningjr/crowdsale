@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { ethers } from 'ethers';
-import Button from 'react-bootstrap/Button';
-
 // Components
 import Info from './Info';
 import Navigation from './Navigation';
 import Buy from './Buy';
 import Loading from './Loading';
 import Progress from './Progress';
+import WhitelistManager from './Whitelist Manager';
 
 //ABIs
 import TOKEN_ABI from '../abis/Token.json';
@@ -28,6 +27,7 @@ function App() {
   const [price, setPrice] = useState(0);
   const [maxTokens, setMaxTokens] = useState(0);
   const [tokensSold, setTokensSold] = useState(0);
+  const [owner, setOwner] = useState(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -54,6 +54,10 @@ function App() {
     const accounts = await window.ethereum.request({
       method: 'eth_requestAccounts',
     });
+
+    const owner = await crowdsale.owner();
+    setOwner(owner);
+
     const account = ethers.utils.getAddress(accounts[0]);
     setAccount(account);
 
@@ -87,9 +91,7 @@ function App() {
           <p className="text-center">
             <strong>Current Price:</strong> {price} ETH
           </p>
-          <Button variant="success" type="submit">
-            Connect Wallet
-          </Button>
+          {account && account.toLowerCase() === owner?.toLowerCase() && <WhitelistManager provider={provider} crowdsale={crowdsale} />}
           <Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
           <Progress maxTokens={maxTokens} tokensSold={tokensSold} />
         </>
