@@ -20,6 +20,9 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [crowdsale, setCrowdsale] = useState(null);
+  const [isOpen, setIsOpen] = useState(null);
+  const [minContribution, setMinContribution] = useState(null);
+  const [maxContribution, setMaxContribution] = useState(null);
 
   const [account, setAccount] = useState(null);
   const [accountBalance, setAccountBalance] = useState(0);
@@ -48,6 +51,11 @@ function App() {
     const token = new ethers.Contract(config[chainId].token.address, TOKEN_ABI, provider);
     const crowdsale = new ethers.Contract(config[chainId].crowdsale.address, CROWDSALE_ABI, provider);
     setCrowdsale(crowdsale);
+    setIsOpen(await crowdsale.isOpen());
+    setMinContribution(await crowdsale.minContribution());
+    setMaxContribution(await crowdsale.maxContribution());
+
+    console.log(await crowdsale.openingTime());
 
     // Fetch accounts
 
@@ -78,11 +86,16 @@ function App() {
     setIsLoading(false);
   };
 
+  console.log('isOpen', isOpen);
+
   return (
     <Container>
       <Navigation />
 
       <h1 className="my-4 text-center">Introducing Dapp Token!</h1>
+      <p className="text-center">
+        <strong>ICO Status:</strong> {isOpen ? 'Open' : 'Closed'}
+      </p>
 
       {isLoading ? (
         <Loading />
@@ -92,7 +105,9 @@ function App() {
             <strong>Current Price:</strong> {price} ETH
           </p>
           {account && account.toLowerCase() === owner?.toLowerCase() && <WhitelistManager provider={provider} crowdsale={crowdsale} />}
-          <Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} />
+          {isOpen && (
+            <Buy provider={provider} price={price} crowdsale={crowdsale} setIsLoading={setIsLoading} minContribution={minContribution} maxContribution={maxContribution} />
+          )}
           <Progress maxTokens={maxTokens} tokensSold={tokensSold} />
         </>
       )}

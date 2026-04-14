@@ -4,31 +4,35 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-const hre = require("hardhat");
+const hre = require('hardhat');
 
 async function main() {
-  const NAME = "Dapp University"
-  const SYMBOL = "DAPPU"
-  const MAX_SUPPLY = "1000000"
-  const PRICE = hre.ethers.utils.parseUnits("0.025", "ether")
+  const NAME = 'Dapp University';
+  const SYMBOL = 'DAPPU';
+  const MAX_SUPPLY = '1000000';
+  const PRICE = hre.ethers.utils.parseUnits('0.025', 'ether');
+  const OPENING_DATE = Math.floor(new Date('2026-04-10T10:00:00').getTime() / 1000);
+  const CLOSING_DATE = Math.floor(new Date('2026-04-15T10:00:00').getTime() / 1000);
+  const MIN_CONTRIBUTION = hre.ethers.utils.parseUnits('10', 'ether'); // 10 tokens
+  const MAX_CONTRIBUTION = hre.ethers.utils.parseUnits('1000', 'ether'); // 1000 tokens
 
   //Migration goes here.
-  const Token = await hre.ethers.getContractFactory("Token")
-  let token = await Token.deploy("Dapp University", "DAPPU", "1000000")
+  const Token = await hre.ethers.getContractFactory('Token');
+  let token = await Token.deploy(NAME, SYMBOL, MAX_SUPPLY);
 
-  await token.deployed()
-  console.log(`Token deployed to: ${token.address}\n`)
+  await token.deployed();
+  console.log(`Token deployed to: ${token.address}\n`);
   // deploy crowdsale
-  const Crowdsale = await hre.ethers.getContractFactory("Crowdsale")
-  const crowdsale = await Crowdsale.deploy(token.address, PRICE, hre.ethers.utils.parseUnits(MAX_SUPPLY, "ether"))
+  const Crowdsale = await hre.ethers.getContractFactory('Crowdsale');
+  const crowdsale = await Crowdsale.deploy(token.address, PRICE, hre.ethers.utils.parseUnits(MAX_SUPPLY, 'ether'), OPENING_DATE, CLOSING_DATE, MIN_CONTRIBUTION, MAX_CONTRIBUTION);
   await crowdsale.deployed();
 
-  console.log(`Crowdsale deployed to: ${crowdsale.address}\n`)
+  console.log(`Crowdsale deployed to: ${crowdsale.address}\n`);
 
-  const transaction = await token.transfer(crowdsale.address, hre.ethers.utils.parseUnits(MAX_SUPPLY, "ether"))
-  await transaction.wait()
+  const transaction = await token.transfer(crowdsale.address, hre.ethers.utils.parseUnits(MAX_SUPPLY, 'ether'));
+  await transaction.wait();
 
-  console.log(`Tokens transferred to Crowdsale\n`)
+  console.log(`Tokens transferred to Crowdsale\n`);
 }
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

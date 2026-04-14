@@ -6,11 +6,16 @@ import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 import { ethers } from 'ethers';
 
-const Buy = ({ provider, price, crowdsale, setIsLoading }) => {
+const Buy = ({ provider, price, crowdsale, setIsLoading, minContribution, maxContribution }) => {
   const [amount, setAmount] = useState('0');
   const [isWaiting, setIsWaiting] = useState(false);
 
   const buyHandler = async (e) => {
+    if (amount < minContribution || amount > maxContribution) {
+      window.alert('Amount must be between 10 and 1000 tokens');
+      setIsWaiting(false);
+      return;
+    }
     e.preventDefault();
     setIsWaiting(true);
 
